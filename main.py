@@ -13,6 +13,7 @@ client = OpenAI(api_key=api_key)
 
 prompt = input("What kind of Movie are you thinking about?")
 
+
 # Create a completion
 completion = client.chat.completions.create(
     model="gpt-4o-mini",
