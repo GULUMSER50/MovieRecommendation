@@ -1,20 +1,20 @@
 import openai
 from dotenv import load_dotenv
 import os
+import streamlit as st
 
 # Load environment variables from the .env file
 load_dotenv()
-
 
 def get_movie_recommendations(genres, favorite_movies):
     # Retrieve the API key from environment variables
     api_key = os.getenv('OPEN_AI_APIKEY')
     openai.api_key = api_key
 
-    prompt = input(
-            f"Bu kullanıcının favori film türleri: {', '.join(genres)}.\n"
-            f"Ve en sevdiği 3 film: {', '.join(favorite_movies)}."
-        )
+    prompt = (
+        f"Bu kullanıcının favori film türleri: {', '.join(genres)}.\n"
+        f"Ve en sevdiği 3 film: {', '.join(favorite_movies)}."
+    )
 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -27,21 +27,25 @@ def get_movie_recommendations(genres, favorite_movies):
 
     return response['choices'][0]['message']['content'].strip()
 
+def main():
+    st.title("Film Öneri Sistemi")
 
-def get_user_preferences():
-    genres = input("Lütfen favori film türlerinizi virgülle ayırarak girin (örn. Aksiyon, Komedi, Bilim Kurgu): ").split(",")
+    genres = st.text_input("Lütfen favori film türlerinizi virgülle ayırarak girin (örn. Aksiyon, Komedi, Bilim Kurgu):")
     favorite_movies = []
     for i in range(3):
-        movie = input(f"En sevdiğiniz {i+1}. filmi girin: ")
-        favorite_movies.append(movie)
-    return genres, favorite_movies
+        movie = st.text_input(f"En sevdiğiniz {i+1}. filmi girin:")
 
+        if movie:
+            favorite_movies.append(movie)
 
-def main():
-    genres, favorite_movies = get_user_preferences()
-    recommendations = get_movie_recommendations(genres, favorite_movies)
-    print("\nFilm Önerileri:\n")
-    print(recommendations)
+    if st.button("Öneri Al"):
+        if genres and len(favorite_movies) == 3:
+            genres_list = genres.split(",")
+            recommendations = get_movie_recommendations(genres_list, favorite_movies)
+            st.write("\nFilm Önerileri:\n")
+            st.write(recommendations)
+        else:
+            st.write("Lütfen tüm alanları doldurun.")
 
 if __name__ == "__main__":
     main()
